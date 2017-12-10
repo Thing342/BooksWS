@@ -47,7 +47,7 @@ public class UserBook implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Column(name = "isbn13")
-    private int isbn13;
+    private long isbn13;
     @Basic(optional = false)
     @NotNull
     @Column(name = "added")
@@ -79,11 +79,11 @@ public class UserBook implements Serializable {
         this.id = id;
     }
 
-    public int getIsbn13() {
+    public long getIsbn13() {
         return isbn13;
     }
 
-    public void setIsbn13(int isbn13) {
+    public void setIsbn13(long isbn13) {
         this.isbn13 = isbn13;
     }
 

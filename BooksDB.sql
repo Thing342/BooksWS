@@ -41,7 +41,7 @@ DROP TABLE IF EXISTS `UserBook`;
 CREATE TABLE `UserBook` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user` int(11) NOT NULL,
-  `isbn13` int(11) NOT NULL,
+  `isbn13` BIGINT(13) NOT NULL,
   `added` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `UserBook_User_id_fk` (`user`),

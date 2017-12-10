@@ -42,7 +42,7 @@ public class UserBookFacadeREST extends AbstractFacade<UserBook> {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public UserBook create(@HeaderParam("tokenid") Integer tokenid,
-                       @FormParam("isbn") Integer isbn) {
+                       @FormParam("isbn") Long isbn) {
         Token token = TokenFacadeREST.getTokenOr401(tokens, tokenid);
 
         UserBook entity = new UserBook();
@@ -57,7 +57,7 @@ public class UserBookFacadeREST extends AbstractFacade<UserBook> {
 
     @DELETE
     public void remove(@HeaderParam("tokenid") Integer tokenid,
-                       @FormParam("isbn") Integer isbn) {
+                       @FormParam("isbn") Long isbn) {
         Token t = TokenFacadeREST.getTokenOr401(tokens, tokenid);
         assert t != null;
 
