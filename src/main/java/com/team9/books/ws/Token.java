@@ -2,6 +2,7 @@ package com.team9.books.ws;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 

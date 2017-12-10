@@ -20,6 +20,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -54,6 +55,7 @@ public class UserBook implements Serializable {
     private Date added;
     @JoinColumn(name = "user", referencedColumnName = "id")
     @ManyToOne(optional = false)
+    @XmlIDREF
     private User user;
 
     public UserBook() {

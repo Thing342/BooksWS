@@ -12,6 +12,8 @@ import org.intellij.lang.annotations.Language;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -40,12 +42,13 @@ public class UserBookFacadeREST extends AbstractFacade<UserBook> {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public UserBook create(@HeaderParam("tokenid") Integer tokenid,
-                       @FormParam("isbn13") Integer isbn13) {
+                       @FormParam("isbn") Integer isbn) {
         Token token = TokenFacadeREST.getTokenOr401(tokens, tokenid);
 
         UserBook entity = new UserBook();
         entity.setUser(token.getUser());
-        entity.setIsbn13(isbn13);
+
+        entity.setIsbn13(isbn);
         entity.setAdded(new Date());
 
         super.create(entity);
@@ -56,12 +59,12 @@ public class UserBookFacadeREST extends AbstractFacade<UserBook> {
     public void remove(@HeaderParam("tokenid") Integer tokenid,
                        @FormParam("isbn") Integer isbn) {
         Token t = TokenFacadeREST.getTokenOr401(tokens, tokenid);
+        assert t != null;
 
-        String query = "DELETE FROM BooksDB.UserBook WHERE user = :userid AND isbn13 = :isbn";
-        getEntityManager()
-                .createQuery(query)
-                .setParameter("userid", t.getUser())
-                .setParameter("isbn", isbn)
+        String query = "DELETE FROM BooksDB.UserBook WHERE user = ? AND isbn13 = ?";
+        this.em.createNativeQuery(query)
+                .setParameter(1, t.getUser().getId())
+                .setParameter(2, isbn)
                 .executeUpdate();
     }
 
