@@ -83,7 +83,7 @@ public class UserFacadeREST extends AbstractFacade<User> {
     }
 
     @GET
-    @Path("{id}")
+    @Path("byID/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public User find(@PathParam("id") Integer id) {
         User result = super.find(id);
@@ -91,16 +91,17 @@ public class UserFacadeREST extends AbstractFacade<User> {
         else return result;
     }
 
-    public User findByUsername(String username) {
+    @GET
+    @Path("byUsername/{name}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public User findByUsername(@PathParam("name") String username) {
         try {
             return (User) this.getEntityManager()
                     .createNamedQuery("User.findByUsername")
                     .setParameter("username", username)
                     .getSingleResult();
-        } catch (ClassCastException cce) {
+        } catch (ClassCastException | NoResultException cce) {
             throw new NotFoundException(cce);
-        } catch (NoResultException nre) {
-            throw new NotAuthorizedException("Invalid username / password.");
         }
     }
 

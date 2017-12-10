@@ -284,3 +284,5 @@ Lists the user's current set of books.
         }
     ]
     ```
+### /apis/nyt (NYTBooksREST)
+This is simply a mirror of the [NYT books API](http://developer.nytimes.com/books_api.json#/README).

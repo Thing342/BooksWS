@@ -61,10 +61,9 @@ public class TokenFacadeREST extends AbstractFacade<Token> {
     }
 
     @DELETE
-    public String logout(@HeaderParam("id") Integer id) {
-        User user = users.find(id);
-        if(user == null) throw new NotFoundException("User not found");
-
+    public String logout(@HeaderParam("tokenid") Integer tokenid) {
+        Token t = getTokenOr401(this, tokenid);
+        User user = t.getUser();
         return logout(user);
     }
 

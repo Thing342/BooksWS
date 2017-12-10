@@ -56,7 +56,7 @@ public class UserBookFacadeREST extends AbstractFacade<UserBook> {
     }
 
     @DELETE
-    public void remove(@HeaderParam("tokenid") Integer tokenid,
+    public String remove(@HeaderParam("tokenid") Integer tokenid,
                        @FormParam("isbn") Long isbn) {
         Token t = TokenFacadeREST.getTokenOr401(tokens, tokenid);
         assert t != null;
@@ -66,6 +66,8 @@ public class UserBookFacadeREST extends AbstractFacade<UserBook> {
                 .setParameter(1, t.getUser().getId())
                 .setParameter(2, isbn)
                 .executeUpdate();
+
+        return "Removed isbn " + isbn.toString() + " from user " + t.getUser().getUsername();
     }
 
     @GET
