@@ -1,3 +1,7 @@
+/**
+ * Client-side tests for backend
+ * I probably should have written this in Java, but whatever
+ */
 import khttp.delete
 import khttp.get
 import khttp.post
@@ -8,10 +12,11 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 
-data class UserRecord(val username: String, var password: String, val userid: Int, var tokenid: Int?)
+private val endpoint = "http://localhost:8080/Books-WS-1.0/webresources/"
+
+data class UserRecord(val username: String, var password: String, var userid: Int, var tokenid: Int?)
 
 class UserFacadeRESTTest {
-    private val endpoint = "http://localhost:8080/Books-WS-1.0/webresources/"
     private val userList = ArrayList<UserRecord>()
 
     @Before
@@ -113,81 +118,83 @@ class UserFacadeRESTTest {
         return user
     }
 
-    private fun create(username: String, email: String, firstname: String, lastname: String, password: String): Pair<Int, JSONObject?> {
-        val payload = mapOf(
-                "username" to username,
-                "email" to email,
-                "firstname" to firstname,
-                "lastname" to lastname,
-                "password" to password
-        )
-        val resp = post(endpoint + "users/",
-                headers = mapOf("Content-Type" to "application/x-www-form-urlencoded"),
-                data = payload)
+    companion object {
+        fun create(username: String, email: String, firstname: String, lastname: String, password: String): Pair<Int, JSONObject?> {
+            val payload = mapOf(
+                    "username" to username,
+                    "email" to email,
+                    "firstname" to firstname,
+                    "lastname" to lastname,
+                    "password" to password
+            )
+            val resp = post(endpoint + "users/",
+                    headers = mapOf("Content-Type" to "application/x-www-form-urlencoded"),
+                    data = payload)
 
-        return when (resp.statusCode) {
-            200 -> (200 to resp.jsonObject)
-            else -> (resp.statusCode to null)
+            return when (resp.statusCode) {
+                200 -> (200 to resp.jsonObject)
+                else -> (resp.statusCode to null)
+            }
         }
-    }
 
-    private fun edit(tokenid: Int, email: String, firstname: String, lastname: String, password: String): Pair<Int, JSONObject?> {
-        val payload = mapOf(
-                "email" to email,
-                "firstname" to firstname,
-                "lastname" to lastname,
-                "password" to password
-        )
-        val resp = put(endpoint + "users/",
-                headers = mapOf("Content-Type" to "application/x-www-form-urlencoded", "tokenid" to tokenid.toString()),
-                data = payload)
+        fun edit(tokenid: Int, email: String, firstname: String, lastname: String, password: String): Pair<Int, JSONObject?> {
+            val payload = mapOf(
+                    "email" to email,
+                    "firstname" to firstname,
+                    "lastname" to lastname,
+                    "password" to password
+            )
+            val resp = put(endpoint + "users/",
+                    headers = mapOf("Content-Type" to "application/x-www-form-urlencoded", "tokenid" to tokenid.toString()),
+                    data = payload)
 
-        return when (resp.statusCode) {
-            200 -> (200 to resp.jsonObject)
-            else -> (resp.statusCode to null)
+            return when (resp.statusCode) {
+                200 -> (200 to resp.jsonObject)
+                else -> (resp.statusCode to null)
+            }
         }
-    }
 
-    private fun remove(tokenid: Int): Pair<Int, String?> {
-        val resp = delete(endpoint + "users/",
-                headers = mapOf("tokenid" to tokenid.toString()))
+        fun remove(tokenid: Int): Pair<Int, String?> {
+            val resp = delete(endpoint + "users/",
+                    headers = mapOf("tokenid" to tokenid.toString()))
 
-        return when (resp.statusCode) {
-            200 -> (200 to resp.text)
-            else -> (resp.statusCode to null)
+            return when (resp.statusCode) {
+                200 -> (200 to resp.text)
+                else -> (resp.statusCode to null)
+            }
         }
-    }
 
-    private fun find (userid: Int): Pair<Int, JSONObject?> {
-        val resp = get(endpoint + "users/$userid")
-        return when (resp.statusCode) {
-            200 -> (200 to resp.jsonObject)
-            else -> (resp.statusCode to null)
+        fun find (userid: Int): Pair<Int, JSONObject?> {
+            val resp = get(endpoint + "users/$userid")
+            return when (resp.statusCode) {
+                200 -> (200 to resp.jsonObject)
+                else -> (resp.statusCode to null)
+            }
         }
-    }
 
-    private fun login (user: UserRecord): Int {
-        val resp = post(endpoint + "login",
-                headers = mapOf(
-                        "username" to user.username,
-                        "password" to user.password
-                ))
+        fun login (user: UserRecord): Int {
+            val resp = post(endpoint + "login",
+                    headers = mapOf(
+                            "username" to user.username,
+                            "password" to user.password
+                    ))
 
-        return if (resp.statusCode == 200) {
-            val tokenid = resp.jsonObject.getInt("id")
-            if (tokenid != 0) {
-                user.tokenid = tokenid
-                200
-            } else 400
-        } else resp.statusCode
-    }
+            return if (resp.statusCode == 200) {
+                val tokenid = resp.jsonObject.getInt("id")
+                if (tokenid != 0) {
+                    user.tokenid = tokenid
+                    200
+                } else 400
+            } else resp.statusCode
+        }
 
-    private fun logout (user: UserRecord): Int {
-        if (user.tokenid == null) return 400
+        fun logout (user: UserRecord): Int {
+            if (user.tokenid == null) return 400
 
-        val resp = delete(endpoint + "login", headers = mapOf("id" to user.userid.toString()))
-        if(resp.statusCode == 200) user.tokenid = null
+            val resp = delete(endpoint + "login", headers = mapOf("id" to user.userid.toString()))
+            if(resp.statusCode == 200) user.tokenid = null
 
-        return resp.statusCode
+            return resp.statusCode
+        }
     }
 }

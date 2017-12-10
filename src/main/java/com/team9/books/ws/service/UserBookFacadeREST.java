@@ -7,6 +7,7 @@ package com.team9.books.ws.service;
 import com.team9.books.ws.Token;
 import com.team9.books.ws.User;
 import com.team9.books.ws.UserBook;
+import org.intellij.lang.annotations.Language;
 
 import java.util.Collection;
 import java.util.Date;
@@ -23,7 +24,7 @@ import javax.ws.rs.core.MediaType;
  * @author wes
  */
 @Stateless
-@Path("com.team9.books.ws.userbook")
+@Path("books")
 public class UserBookFacadeREST extends AbstractFacade<UserBook> {
 
     @PersistenceContext(unitName = "com.team9_Books-WS_war_1.0PU")
@@ -38,9 +39,9 @@ public class UserBookFacadeREST extends AbstractFacade<UserBook> {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public void create(@HeaderParam("tokenid") Integer tokenid,
-                       @HeaderParam("isbn13") Integer isbn13) {
-        Token token = tokens.getTokenOr401(tokenid);
+    public UserBook create(@HeaderParam("tokenid") Integer tokenid,
+                       @FormParam("isbn13") Integer isbn13) {
+        Token token = TokenFacadeREST.getTokenOr401(tokens, tokenid);
 
         UserBook entity = new UserBook();
         entity.setUser(token.getUser());
@@ -48,28 +49,26 @@ public class UserBookFacadeREST extends AbstractFacade<UserBook> {
         entity.setAdded(new Date());
 
         super.create(entity);
-    }
-
-    @PUT
-    @Path("{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public void edit(@HeaderParam("tokenid") Integer tokenid, @PathParam("id") Integer id, UserBook entity) {
-        tokens.getTokenOr401(tokenid);
-        super.edit(entity);
+        return entity;
     }
 
     @DELETE
-    @Path("{id}")
-    public void remove(@HeaderParam("tokenid") Integer tokenid, @PathParam("id") Integer id) {
-        tokens.getTokenOr401(tokenid);
-        super.remove(super.find(id));
+    public void remove(@HeaderParam("tokenid") Integer tokenid,
+                       @FormParam("isbn") Integer isbn) {
+        Token t = TokenFacadeREST.getTokenOr401(tokens, tokenid);
+
+        String query = "DELETE FROM BooksDB.UserBook WHERE user = :userid AND isbn13 = :isbn";
+        getEntityManager()
+                .createQuery(query)
+                .setParameter("userid", t.getUser())
+                .setParameter("isbn", isbn)
+                .executeUpdate();
     }
 
     @GET
-    @Path("byUser")
     @Produces(MediaType.APPLICATION_JSON)
     public Collection<UserBook> userBooks(@HeaderParam("tokenid") Integer tokenid) {
-        Token token = tokens.getTokenOr401(tokenid);
+        Token token = TokenFacadeREST.getTokenOr401(tokens, tokenid);
         return token.getUser().getUserBookCollection();
     }
 

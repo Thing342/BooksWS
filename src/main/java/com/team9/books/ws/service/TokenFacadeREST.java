@@ -39,9 +39,9 @@ public class TokenFacadeREST extends AbstractFacade<Token> {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Token login(@HeaderParam("id") Integer id,
+    public Token login(@HeaderParam("username") String username,
                        @HeaderParam("password") String pwd) {
-        User user = users.find(id);
+        User user = users.findByUsername(username);
         if(user == null) throw new NotFoundException("User not found");
 
         if(BCrypt.checkpw(pwd, new String(user.getPassHash()))) {
@@ -65,6 +65,10 @@ public class TokenFacadeREST extends AbstractFacade<Token> {
         User user = users.find(id);
         if(user == null) throw new NotFoundException("User not found");
 
+        return logout(user);
+    }
+
+    public String logout(User user) {
         //language=MySQL
         String query = "DELETE FROM Token WHERE user = :userid";
 
@@ -75,12 +79,12 @@ public class TokenFacadeREST extends AbstractFacade<Token> {
         return "Logged out user " + user.getUsername();
     }
 
-    public Token getTokenOr401(int tokenid) {
-        Token token = this.find(tokenid);
+    public static Token getTokenOr401(TokenFacadeREST tokens, int tokenid) {
+        Token token = tokens.find(tokenid);
         if (token == null)
             throw new NotAuthorizedException("Token is missing, invalid, or expired."); // Return 401
         token.setCreated(new Date());
-        this.edit(token);
+        tokens.edit(token);
         return token;
     }
 

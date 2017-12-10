@@ -6,11 +6,13 @@ package com.team9.books.ws.service;
 
 import com.team9.books.ws.Token;
 import com.team9.books.ws.User;
+import org.mindrot.jbcrypt.BCrypt;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -24,11 +26,14 @@ import java.util.List;
  */
 @Stateless
 @Named("users")
-@Path("com.team9.books.ws.user")
+@Path("users")
 public class UserFacadeREST extends AbstractFacade<User> {
 
     @PersistenceContext(unitName = "com.team9_Books-WS_war_1.0PU")
     private EntityManager em;
+
+    @EJB
+    private TokenFacadeREST tokens;
 
     public UserFacadeREST() {
         super(User.class);
@@ -47,23 +52,56 @@ public class UserFacadeREST extends AbstractFacade<User> {
     }
 
     @PUT
-    @Path("{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public void edit(@PathParam("id") Integer id, User entity) {
+    @Produces(MediaType.APPLICATION_JSON)
+    public User edit(@HeaderParam("tokenid") Integer tokenid,
+                     @FormParam("email") String email,
+                     @FormParam("firstname") String firstname,
+                     @FormParam("lastname") String lastname,
+                     @FormParam("password") String password) {
+        Token t = TokenFacadeREST.getTokenOr401(tokens, tokenid);
+        User entity = t.getUser();
+
+        entity.setEmail(email);
+        entity.setFirstName(firstname);
+        entity.setLastName(lastname);
+        entity.setPassHash(BCrypt.hashpw(password, BCrypt.gensalt()).getBytes());
+
         super.edit(entity);
+
+        return entity;
     }
 
     @DELETE
-    @Path("{id}")
-    public void remove(@PathParam("id") Integer id) {
-        super.remove(super.find(id));
+    public String remove(@HeaderParam("tokenid") Integer tokenid) {
+        Token t = TokenFacadeREST.getTokenOr401(tokens, tokenid);
+        User entity = t.getUser();
+
+        tokens.logout(entity);
+        super.remove(entity);
+
+        return "Deleted user " + entity.getUsername();
     }
 
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public User find(@PathParam("id") Integer id) {
-        return super.find(id);
+        User result = super.find(id);
+        if(result == null) throw new NotFoundException();
+        else return result;
+    }
+
+    public User findByUsername(String username) {
+        try {
+            return (User) this.getEntityManager()
+                    .createNamedQuery("User.findByUsername")
+                    .setParameter("username", username)
+                    .getSingleResult();
+        } catch (ClassCastException cce) {
+            throw new NotFoundException(cce);
+        } catch (NoResultException nre) {
+            throw new NotAuthorizedException("Invalid username / password.");
+        }
     }
 
     @GET
@@ -90,5 +128,13 @@ public class UserFacadeREST extends AbstractFacade<User> {
     @Override
     protected EntityManager getEntityManager() {
         return em;
+    }
+
+    public TokenFacadeREST getTokens() {
+        return tokens;
+    }
+
+    public void setTokens(TokenFacadeREST tokens) {
+        this.tokens = tokens;
     }
 }
