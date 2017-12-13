@@ -6,7 +6,7 @@
         <property name="portNumber" value="3306"/>
         <property name="databaseName" value="BooksDB"/>
         <property name="User" value="root"/>
-        <property name="Password" value="8bee3d537c"/>
+        <property name="Password" value="mypassword"/>
         <property name="URL" value="jdbc:mysql://localhost:3306/BooksDB?zeroDateTimeBehavior=convertToNull"/>
         <property name="driverClass" value="com.mysql.jdbc.Driver"/>
     </jdbc-connection-pool>

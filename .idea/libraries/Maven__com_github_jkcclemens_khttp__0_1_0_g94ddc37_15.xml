@@ -3,9 +3,7 @@
     <CLASSES>
       <root url="jar://$MAVEN_REPOSITORY$/com/github/jkcclemens/khttp/-0.1.0-g94ddc37-15/khttp--0.1.0-g94ddc37-15.jar!/" />
     </CLASSES>
-    <JAVADOC>
-      <root url="jar://$MAVEN_REPOSITORY$/com/github/jkcclemens/khttp/-0.1.0-g94ddc37-15/khttp--0.1.0-g94ddc37-15-javadoc.jar!/" />
-    </JAVADOC>
+    <JAVADOC />
     <SOURCES>
       <root url="jar://$MAVEN_REPOSITORY$/com/github/jkcclemens/khttp/-0.1.0-g94ddc37-15/khttp--0.1.0-g94ddc37-15-sources.jar!/" />
     </SOURCES>
