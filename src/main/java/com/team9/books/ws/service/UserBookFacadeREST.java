@@ -7,13 +7,10 @@ package com.team9.books.ws.service;
 import com.team9.books.ws.Token;
 import com.team9.books.ws.User;
 import com.team9.books.ws.UserBook;
-import org.intellij.lang.annotations.Language;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -61,10 +58,9 @@ public class UserBookFacadeREST extends AbstractFacade<UserBook> {
         Token t = TokenFacadeREST.getTokenOr401(tokens, tokenid);
         assert t != null;
 
-        String query = "DELETE FROM BooksDB.UserBook WHERE user = ? AND isbn13 = ?";
-        this.em.createNativeQuery(query)
-                .setParameter(1, t.getUser().getId())
-                .setParameter(2, isbn)
+        this.em.createQuery("DELETE FROM UserBook ub WHERE ub.user = :userid AND ub.isbn13 = :isbn")
+                .setParameter("userid", t.getUser())
+                .setParameter("isbn", isbn)
                 .executeUpdate();
 
         return "Removed isbn " + isbn.toString() + " from user " + t.getUser().getUsername();
@@ -74,7 +70,11 @@ public class UserBookFacadeREST extends AbstractFacade<UserBook> {
     @Produces(MediaType.APPLICATION_JSON)
     public Collection<UserBook> userBooks(@HeaderParam("tokenid") Integer tokenid) {
         Token token = TokenFacadeREST.getTokenOr401(tokens, tokenid);
-        return token.getUser().getUserBookCollection();
+        User u =  token.getUser();
+        return this.em.createQuery("FROM UserBook ub WHERE ub.user IN (:userid)", UserBook.class)
+                .setParameter("userid", u)
+                .getResultList();
+        
     }
 
     @Override

@@ -28,10 +28,10 @@ public class ApplicationConfig extends Application {
      * If required, comment out calling this method in getClasses().
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
+        resources.add(com.team9.books.ws.service.NYTBooksREST.class);
         resources.add(com.team9.books.ws.service.TokenFacadeREST.class);
         resources.add(com.team9.books.ws.service.UserBookFacadeREST.class);
         resources.add(com.team9.books.ws.service.UserFacadeREST.class);
-        resources.add(com.team9.books.ws.service.NYTBooksREST.class);
     }
     
 }
